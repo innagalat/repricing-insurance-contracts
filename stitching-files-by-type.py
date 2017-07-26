@@ -29,6 +29,8 @@ def read(nfold, nfile):
     df = read_if_exists(path)
     return(df)
 
+# You should delete things you are not using
+# they are rubbish, and make programs harder to read
 # def write(nfold, nfile):
 #     path = get_file_path(nfold, nfile)
 #     df = pd.to_csv(path)
