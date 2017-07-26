@@ -6,14 +6,48 @@ from sets import Set
 import sys
 from datetime import datetime 
 
+PROJ = 'C:\galati_files\pyscripts\callo-repricing\compare-runs'
+DATA = os.path.join(PROJ, 'data')
+RESULT = os.path.join(PROJ, 'results')
 
-run_name = '0.Run_02'   
-# run_name = '0.Run_06'
+run_name = '0.repricing-run02'   
+# run_name = '0.repricing-run_06'
 
+f_run_name = run_name[-5:]#last 4 letters
+print f_run_name
+
+# sets cwd to location of the script
+# os.chdir(os.path.dirname(__file__))
+
+# ___________________adds a timestamp to each line________________________
+#old_f = sys.stdout
+#class F:
+#    def write(self, x):
+#        old_f.write(x.replace("\n", " [%s]\n" % str(datetime.now())))
+#sys.stdout = F()
+# _________________________________________________________________________
+
+
+def as_integer(value):
+    try:
+        int(value)
+        return int(value)
+    except:
+        return np.nan
+
+
+def read(nfold, nfile):
+    path = get_file_path(nfold, nfile)
+    df = read_if_exists(path)
+    return(df)
+
+# def get_file_path(foldname, filename):
+#     cwd = os.getcwd()
+#     filepath = os.path.join(cwd, foldname, filename)
+#     return(filepath)
 
 def get_file_path(foldname, filename):
-    cwd = os.getcwd()
-    filepath = os.path.join(cwd, foldname, filename)
+    filepath = os.path.join(PROJ, DATA, foldname, filename)
     return(filepath)
 
 def read_if_exists(fpath):
@@ -24,52 +58,13 @@ def read_if_exists(fpath):
         print 'File ' + fpath + ' not found'
         exit(1)
 
-def read(nfold, nfile):
-    path = get_file_path(nfold, nfile)
-    df = read_if_exists(path)
-    return(df)
-
-# You should delete things you are not using
-# they are rubbish, and make programs harder to read
-# def write(nfold, nfile):
-#     path = get_file_path(nfold, nfile)
-#     df = pd.to_csv(path)
-#     return(df)
-
 def read_and_slice(nfold, nfile, col_list):
     path = get_file_path(nfold, nfile)
     df = read_if_exists(path)
     df = df.ix[:, col_list]
     return(df)
 
-def as_integer(value):
-    try:
-        int(value)
-        return int(value)
-    except:
-        return np.nan
 
-# sets cwd to location of the script
-os.chdir(os.path.dirname(__file__))
-
-# _________________________
-#old_f = sys.stdout
-#class F:
-#    def write(self, x):
-#        old_f.write(x.replace("\n", " [%s]\n" % str(datetime.now())))
-#sys.stdout = F()
-# ___________________________
-
-print ('start of program')
-print os.getcwd()
-
-# dff2 = pd.DataFrame({'A' :1., 'E' : [u'"1111"',2222, 333]})
-# print dff2
-# print type(dff2.ix[0,'A'])
-# if type(dff2.ix[0,'E']) == str:
-#         dff2.ix[:,'E'] = [as_integer(x) for x in dff2.ix[:, 'E']]
-# print dff2
-# print type(dff2.ix[0,'A'])
 
 def read_and_check(run_name, filename, col_list1):
     df1 = read_and_slice(run_name, filename, col_list1)
@@ -120,11 +115,23 @@ def read_slice_combine(run_name, filename,col_list1):
         df_ResultComb = pd.concat([df1_r, df2_r], ignore_index=True)
     
     return df_ResultComb
- 
 
+def merge_by_id(df_a, df_b):
+    return(pd.merge(df_a, df_b, how = 'outer', 
+            on = ['POL_NUMBER', 'L_LIFE_ID','SUM_ASSURED','B_BEN_NO','AGE_AT_ENTRY']))
+
+# You should delete things you are not using
+# they are rubbish, and make programs harder to read
+# def write(nfold, nfile):
+#     path = get_file_path(nfold, nfile)
+#     df = pd.to_csv(path)
+#     return(df)
+ 
+print ('start of program')
+print os.getcwd()
 
 col_list_res_ls = ['AGE_AT_ENTRY','ANNUAL_PREM_1','BE_RESERVE', 'L_LIFE_ID',
-                'POL_NUMBER','PREMIUM_TYPE','SUM_ASSD_PP','OAP', 'PV_PREM', 'POL_FEE_PP', 'ANNUAL_PREM_13']
+                'POL_NUMBER','PREMIUM_TYPE','SUM_ASSD_PP','OAP', 'POL_FEE_PP', 'ANNUAL_PREM_13']
 col_list_ls_mpf = ['POL_NUMBER','L_LIFE_ID','AGE_AT_ENTRY',
                 'DURATIONIF_M', 'SEX','SMOKER_IND', 'SUM_ASSURED', 'B_BEN_NO',
                 'B_OFF_APREM','PREMIUM_TYPE', 'POLICY_FEE',
@@ -166,7 +173,7 @@ df_death = df_death.rename(columns = {'SUM_ASSD_PP':'SUM_ASSURED','OAP':'B_OFF_A
 size_death_count = df_death1_res.shape[0] + df_death2_res.shape[0] +df_death3_res.shape[0] +df_death4_res.shape[0]
 size_death_ann_prem = df_death1_res['ANNUAL_PREM_1'] + df_death2_res['ANNUAL_PREM_1'] +df_death3_res['ANNUAL_PREM_1'] +df_death4_res['ANNUAL_PREM_1']
 size_death_sum_ass = df_death1_res['SUM_ASSD_PP'] + df_death2_res['SUM_ASSD_PP'] +df_death3_res['SUM_ASSD_PP'] +df_death4_res['SUM_ASSD_PP']
-print size_death_count, size_death_ann_prem +size_death_sum_ass
+# print size_death_count, size_death_ann_prem +size_death_sum_ass
 
 df_tra1_res = read_and_check(run_name, tra_name[0], col_list_res_ls)
 df_tra2_res = read_and_check(run_name, tra_name[1], col_list_res_ls)
@@ -211,32 +218,85 @@ df_ip_mpf = df_ip_mpf.rename(columns = {'ANN_PHI_BEN':'SUM_ASSURED',
 
 
 
-f_run_name = run_name[-6:]#last 4 letters
-fpath = r'C:\\galati_files\\pyscripts\\Callo_Repricing\\Compare_runs\\' + 'Results Files_'+ f_run_name 
-if os.path.exists(fpath) == False:
-     os.makedirs(fpath)
-
-  
-print fpath
-df_death.to_csv(fpath + '\\' + 'Death.csv', index=False)
-df_tpd.to_csv(fpath + '\\' + 'TPD.csv', index=False)
-df_tra.to_csv(fpath + '\\' + 'Trauma.csv', index=False)
-df_ip.to_csv(fpath + '\\' + 'Income secure.csv', index=False)
 
 
-df_death_mpf.to_csv(r'C:\\galati_files\\pyscripts\\Callo_Repricing\\Compare_runs\\Mpf\\' + 'Death mpf.csv', index=False)
-df_tpd_mpf.to_csv(r'C:\\galati_files\\pyscripts\\Callo_Repricing\\Compare_runs\\Mpf\\' + 'TPD mpf.csv', index=False)
-df_tra_mpf.to_csv(r'C:\\galati_files\\pyscripts\\Callo_Repricing\\Compare_runs\\Mpf\\' + 'Trauma mpf.csv', index=False)
-df_ip_mpf.to_csv(r'C:\\galati_files\\pyscripts\\Callo_Repricing\\Compare_runs\\Mpf\\' + 'Income secure mpf.csv', index=False)
+
+# df_death.to_csv(fpath + '\\' + 'Death.csv', index=False)
+# df_tpd.to_csv(fpath + '\\' + 'TPD.csv', index=False)
+# df_tra.to_csv(fpath + '\\' + 'Trauma.csv', index=False)
+# df_ip.to_csv(fpath + '\\' + 'Income secure.csv', index=False)
+
+
+# df_death_mpf.to_csv(r'C:\\galati_files\\pyscripts\\Callo_Repricing\\Compare_runs\\Mpf\\' + 'Death mpf.csv', index=False)
+# df_tpd_mpf.to_csv(r'C:\\galati_files\\pyscripts\\Callo_Repricing\\Compare_runs\\Mpf\\' + 'TPD mpf.csv', index=False)
+# df_tra_mpf.to_csv(r'C:\\galati_files\\pyscripts\\Callo_Repricing\\Compare_runs\\Mpf\\' + 'Trauma mpf.csv', index=False)
+# df_ip_mpf.to_csv(r'C:\\galati_files\\pyscripts\\Callo_Repricing\\Compare_runs\\Mpf\\' + 'Income secure mpf.csv', index=False)
 
 
    
-print 'death mpf', df_death_mpf.head(2)
-print 'tra mpf',df_tra_mpf.head(2)
-print 'tpd mpf',df_tpd_mpf.head(2)
-print 'ip mpf',df_ip_mpf.head(2)
+# print 'death mpf', df_death_mpf.head(2)
+# print 'tra mpf',df_tra_mpf.head(2)
+# print 'tpd mpf',df_tpd_mpf.head(2)
+# print 'ip mpf',df_ip_mpf.head(2)
 
-print df_death.head(2)
-print df_tra.head(2)
-print df_tpd.head(2)
-print df_ip.head(2)
+# print df_death.head(2)
+# print df_tra.head(2)
+# print df_tpd.head(2)
+# print df_ip.head(2)
+
+
+death_cmb =pd.concat([df_death_mpf,df_death], axis = 1)
+tpd_cmb = pd.concat([df_tpd_mpf,df_tpd], axis = 1)
+tra_cmb = pd.concat([df_tra_mpf,df_tra], axis = 1)
+ip_cmb = merge_by_id(df_ip_mpf, df_ip)
+print ip_cmb.info()
+
+death_cmb = death_cmb.loc[:,~death_cmb.columns.duplicated()]
+tra_cmb = tra_cmb.loc[:,~tra_cmb.columns.duplicated()]
+tpd_cmb = tpd_cmb.loc[:,~tpd_cmb.columns.duplicated()]
+ip_cmb = ip_cmb.drop_duplicates(['POL_NUMBER', 'L_LIFE_ID','SUM_ASSURED', 'AGE_AT_ENTRY', 'B_BEN_NO'])
+
+
+# Check that merged correctly:
+if df_death.shape[0] != death_cmb.shape[0]:
+    print ("CHECK MERGING of death_cmb. Length before and after is different")
+    print ('before:'), df_death.shape[0]
+    print ('after:'), death_cmb.shape[0]
+if df_death['SUM_ASSURED'].sum() != death_cmb['SUM_ASSURED'].sum():
+    print ("CHECK MERGING of death_cmb. Total Sum Assured before and after is different")
+if df_tra.shape[0] != tra_cmb.shape[0]:
+    print ("CHECK MERGING of tra_cmb. Length before and after is different")
+    print ('before:'), df_tra.shape[0]
+    print ('after:'), tra_cmb.shape[0]
+if df_tra['SUM_ASSURED'].sum() != tra_cmb['SUM_ASSURED'].sum():
+    print ("CHECK MERGING of tra_cmb. Total Sum Assured before and after is different")
+if df_tpd.shape[0] != tpd_cmb.shape[0]:
+    print ("CHECK MERGING of tpd_cmb. Length before and after is different")
+    print ('before:'), df_tpd.shape[0]
+    print ('after:'), tpd_cmb.shape[0]
+if df_tpd['SUM_ASSURED'].sum() != tpd_cmb['SUM_ASSURED'].sum():
+    print ("CHECK MERGING of tpd_cmb. Total Sum Assured before and after is different")
+if df_ip.shape[0] != ip_cmb.shape[0]:
+    print ("CHECK MERGING of ip_cmb. Length before and after is different")
+    print ('before:'), df_ip.shape[0]
+    print ('after:'), ip_cmb.shape[0]
+if df_ip['SUM_ASSURED'].sum() != ip_cmb['SUM_ASSURED'].sum():
+    print ("CHECK MERGING of ip_cmb. Total Sum Assured before and after is different")
+
+
+
+
+f_run_name = run_name[-5:]#last 5 letters
+print f_run_name
+
+fpath_res = os.path.join(RESULT, 'intermediate-' + f_run_name)
+print fpath_res
+
+if os.path.exists(fpath_res) == False:
+     os.makedirs(fpath_res)
+
+ 
+death_cmb.to_csv(fpath_res + '\\' + 'Death' + run_name[-2:] + '.csv', index=False)
+tpd_cmb.to_csv(fpath_res + '\\' + 'TPD' + run_name[-2:] + '.csv', index=False)
+tra_cmb.to_csv(fpath_res + '\\' + 'Trauma' + run_name[-2:] + '.csv', index=False)
+ip_cmb.to_csv(fpath_res + '\\' + 'Income secure' + run_name[-2:] + '.csv', index=False)
