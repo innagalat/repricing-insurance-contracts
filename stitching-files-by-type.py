@@ -10,10 +10,10 @@ PROJ = 'C:\galati_files\pyscripts\callo-repricing\compare-runs'
 DATA = os.path.join(PROJ, 'data')
 RESULT = os.path.join(PROJ, 'results')
 
-run_name = '0.repricing-run02'   
-# run_name = '0.repricing-run_06'
+# run_name = '0.repricing-run02'   
+run_name = '0.repricing-run06'
 
-f_run_name = run_name[-5:]#last 4 letters
+f_run_name = run_name[-5:]#last 5 letters
 print f_run_name
 
 # sets cwd to location of the script
@@ -136,6 +136,7 @@ col_list_ls_mpf = ['POL_NUMBER','L_LIFE_ID','AGE_AT_ENTRY',
                 'DURATIONIF_M', 'SEX','SMOKER_IND', 'SUM_ASSURED', 'B_BEN_NO',
                 'B_OFF_APREM','PREMIUM_TYPE', 'POLICY_FEE',
                 'BROKER', 'DCS_REIN_SI', 'CHANNEL']
+
 col_list_res_ip = ['AGE_AT_ENTRY', 'POL_NUMBER','SUM_INS', 'B_BEN_NO',
                 'MOS_PV_PREM','ANNUAL_PREM_12', 'BE_RESERVE', 'L_LIFE_ID', 'ANNUAL_PREM_01'] 
 col_list_ip_mpf = ['POL_NUMBER','L_LIFE_ID','AGE_AT_ENTRY', 'PREMIUM_TYPE',
@@ -190,8 +191,8 @@ df_ip =pd.DataFrame()
 for i in range(0,len(ip_name)):
     df_ip1 = read_and_check(run_name, ip_name[i], col_list_res_ip)
     df_ip = pd.concat([df_ip,df_ip1], ignore_index=True)
-df_ip = df_ip.rename(columns = {'SUM_INS':'SUM_ASSURED',
-                                        'ANNUAL_PREM':'B_OFF_APREM'})
+df_ip = df_ip.rename(columns = {'SUM_INS':'SUM_ASSURED','ANNUAL_PREM':'B_OFF_APREM',
+                                'ANNUAL_PREM_12':'ANNUAL_PREM_13','ANNUAL_PREM_01':'ANNUAL_PREM_1'})
 
 # stitch together MPF file
 
