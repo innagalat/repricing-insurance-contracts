@@ -10,8 +10,8 @@ PROJ = 'C:\galati_files\pyscripts\callo-repricing\compare-runs'
 DATA = os.path.join(PROJ, 'data')
 RESULT = os.path.join(PROJ, 'results')
 
-# run_name = '0.repricing-run02'   
-run_name = '0.repricing-run06'
+run_name = '0.repricing-run02'   
+# run_name = '0.repricing-run06'
 
 f_run_name = run_name[-5:]#last 5 letters
 print f_run_name
@@ -245,6 +245,8 @@ df_ip_mpf = df_ip_mpf.rename(columns = {'ANN_PHI_BEN':'SUM_ASSURED',
 # print df_tpd.head(2)
 # print df_ip.head(2)
 
+print df_death_mpf.info()
+print df_death.info()
 
 death_cmb =pd.concat([df_death_mpf,df_death], axis = 1)
 tpd_cmb = pd.concat([df_tpd_mpf,df_tpd], axis = 1)
@@ -283,7 +285,6 @@ if df_ip.shape[0] != ip_cmb.shape[0]:
     print ('after:'), ip_cmb.shape[0]
 if df_ip['SUM_ASSURED'].sum() != ip_cmb['SUM_ASSURED'].sum():
     print ("CHECK MERGING of ip_cmb. Total Sum Assured before and after is different")
-
 
 
 
