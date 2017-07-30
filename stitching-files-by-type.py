@@ -7,11 +7,11 @@ import sys
 from datetime import datetime 
 
 PROJ = 'C:\galati_files\pyscripts\callo-repricing\compare-runs'
-DATA = os.path.join(PROJ, 'data')
-RESULT = os.path.join(PROJ, 'results')
-
-run_name = '0.repricing-run02'   
-# run_name = '0.repricing-run06'
+DATA = os.path.join(PROJ, 'data', 'super-cover')
+RESULT = os.path.join(PROJ, 'results\\super-cover')
+print DATA
+# run_name = '0.repricing-run02'   
+run_name = '0.repricing-run06'
 
 f_run_name = run_name[-5:]#last 5 letters
 print f_run_name
@@ -88,10 +88,11 @@ def read_and_check(run_name, filename, col_list1):
         df1.ix[:,'B_BEN_NO'] = [as_integer(x) for x in df1.ix[:, 'B_BEN_NO']]
 
     if 'PREMIUM_TYPE' in col_list1:
-        if '"' in df1.ix[0,'PREMIUM_TYPE']:
-            df1.ix[:,'PREMIUM_TYPE'] = [x.replace('"', '') for x in df1.ix[:,'PREMIUM_TYPE']]
-        if ' ' in df1.ix[0,'PREMIUM_TYPE']:
-            df1.ix[:,'PREMIUM_TYPE'] = [x.replace(' ', '') for x in df1.ix[:,'PREMIUM_TYPE']]
+        if type(df1.ix[0,'PREMIUM_TYPE']) ==str:
+            if '"' in df1.ix[0,'PREMIUM_TYPE']:
+                df1.ix[:,'PREMIUM_TYPE'] = [x.replace('"', '') for x in df1.ix[:,'PREMIUM_TYPE']]
+            if ' ' in df1.ix[0,'PREMIUM_TYPE']:
+                df1.ix[:,'PREMIUM_TYPE'] = [x.replace(' ', '') for x in df1.ix[:,'PREMIUM_TYPE']]
 
     if 'L_LIFE_ID' in col_list1:
         if type(df1.ix[0,'L_LIFE_ID']) != int:
@@ -159,7 +160,7 @@ tra_name_mpf = ['COCTL1.PRO.csv','COCTS1.PRO.csv']
 ip_name_mpf = ['PAOCL1.PRO.csv', 'PAOCL2.PRO.csv', 'PAOCL3.PRO.csv', 'PAOCL4.PRO.csv',
             'PAOCS1.PRO.csv','PAOCS2.PRO.csv', 'PAOCS3.PRO.csv', 'PAOCS4.PRO.csv','PAOCS5.PRO.csv',
             'PAOCS6.PRO.csv', 'PAOCS7.PRO.csv' ,'PAOCS8.PRO.csv', 'PAOCS9.PRO.csv','PAOCS10.PRO.csv']
-
+print os.path.join(DATA, death_name[0])
 
 
 df_death1_res = read_and_check(run_name, death_name[0], col_list_res_ls)
@@ -170,17 +171,20 @@ df_death = pd.concat([df_death1_res, df_death2_res, df_death3_res, df_death4_res
         ignore_index=True)
 df_death = df_death.rename(columns = {'SUM_ASSD_PP':'SUM_ASSURED','OAP':'B_OFF_APREM',
                                     'POL_FEE_PP':'POLICY_FEE'})
+print 'df_death'
+print df_death.info()
 
 size_death_count = df_death1_res.shape[0] + df_death2_res.shape[0] +df_death3_res.shape[0] +df_death4_res.shape[0]
 size_death_ann_prem = df_death1_res['ANNUAL_PREM_1'] + df_death2_res['ANNUAL_PREM_1'] +df_death3_res['ANNUAL_PREM_1'] +df_death4_res['ANNUAL_PREM_1']
 size_death_sum_ass = df_death1_res['SUM_ASSD_PP'] + df_death2_res['SUM_ASSD_PP'] +df_death3_res['SUM_ASSD_PP'] +df_death4_res['SUM_ASSD_PP']
 # print size_death_count, size_death_ann_prem +size_death_sum_ass
 
-df_tra1_res = read_and_check(run_name, tra_name[0], col_list_res_ls)
-df_tra2_res = read_and_check(run_name, tra_name[1], col_list_res_ls)
-df_tra = pd.concat([df_tra1_res, df_tra2_res], ignore_index=True)
-df_tra = df_tra.rename(columns = {'SUM_ASSD_PP':'SUM_ASSURED','OAP':'B_OFF_APREM',
-                                    'POL_FEE_PP':'POLICY_FEE'})
+if os.path.exists(os.path.join(DATA, tra_name[0])) == True:
+    df_tra1_res = read_and_check(run_name, tra_name[0], col_list_res_ls)
+    df_tra2_res = read_and_check(run_name, tra_name[1], col_list_res_ls)
+    df_tra = pd.concat([df_tra1_res, df_tra2_res], ignore_index=True)
+    df_tra = df_tra.rename(columns = {'SUM_ASSD_PP':'SUM_ASSURED','OAP':'B_OFF_APREM',
+                                        'POL_FEE_PP':'POLICY_FEE'})
 
 df_tpd1_res = read_and_check(run_name, tpd_name[0] , col_list_res_ls)
 df_tpd2_res = read_and_check(run_name, tpd_name[1] , col_list_res_ls)
@@ -196,18 +200,29 @@ df_ip = df_ip.rename(columns = {'SUM_INS':'SUM_ASSURED','ANNUAL_PREM':'B_OFF_APR
 
 # stitch together MPF file
 
+
 df_death_mpf = pd.DataFrame()
 for i in range(0, len(death_name_mpf)):
     df_death_mpf1 = read_and_check('0.Mpf',death_name_mpf[i], col_list_ls_mpf)
     df_death_mpf = pd.concat([df_death_mpf, df_death_mpf1], ignore_index=True)
+    print df_death_mpf1.info()
+    print df_death_mpf.info()
+  
+
+
+print df_death.info()
+print df_death_mpf.info()
+
+
 
 df_tpd_mpf1 = read_and_check('0.Mpf',tpd_name_mpf[0], col_list_ls_mpf)
 df_tpd_mpf2 = read_and_check('0.Mpf',tpd_name_mpf[1], col_list_ls_mpf)
 df_tpd_mpf = pd.concat([df_tpd_mpf1, df_tpd_mpf2], ignore_index=True)
 
-df_tra_mpf1 = read_and_check('0.Mpf', tra_name_mpf[0], col_list_ls_mpf)
-df_tra_mpf2 = read_and_check('0.Mpf', tra_name_mpf[1], col_list_ls_mpf)  
-df_tra_mpf = pd.concat([df_tra_mpf1,df_tra_mpf2], ignore_index=True)
+if os.path.exists(os.path.join(DATA, tra_name[0])) == True:
+    df_tra_mpf1 = read_and_check('0.Mpf', tra_name_mpf[0], col_list_ls_mpf)
+    df_tra_mpf2 = read_and_check('0.Mpf', tra_name_mpf[1], col_list_ls_mpf)  
+    df_tra_mpf = pd.concat([df_tra_mpf1,df_tra_mpf2], ignore_index=True)
 
 df_ip_mpf =pd.DataFrame()
 for i in range(0,len(ip_name_mpf)):
@@ -250,12 +265,14 @@ print df_death.info()
 
 death_cmb =pd.concat([df_death_mpf,df_death], axis = 1)
 tpd_cmb = pd.concat([df_tpd_mpf,df_tpd], axis = 1)
-tra_cmb = pd.concat([df_tra_mpf,df_tra], axis = 1)
+if os.path.exists(os.path.join(DATA, tra_name[0])) == True:
+    tra_cmb = pd.concat([df_tra_mpf,df_tra], axis = 1)
 ip_cmb = merge_by_id(df_ip_mpf, df_ip)
-print ip_cmb.info()
+
 
 death_cmb = death_cmb.loc[:,~death_cmb.columns.duplicated()]
-tra_cmb = tra_cmb.loc[:,~tra_cmb.columns.duplicated()]
+if os.path.exists(os.path.join(DATA, tra_name[0])) == True:
+    tra_cmb = tra_cmb.loc[:,~tra_cmb.columns.duplicated()]
 tpd_cmb = tpd_cmb.loc[:,~tpd_cmb.columns.duplicated()]
 ip_cmb = ip_cmb.drop_duplicates(['POL_NUMBER', 'L_LIFE_ID','SUM_ASSURED', 'AGE_AT_ENTRY', 'B_BEN_NO'])
 
@@ -267,12 +284,13 @@ if df_death.shape[0] != death_cmb.shape[0]:
     print ('after:'), death_cmb.shape[0]
 if df_death['SUM_ASSURED'].sum() != death_cmb['SUM_ASSURED'].sum():
     print ("CHECK MERGING of death_cmb. Total Sum Assured before and after is different")
-if df_tra.shape[0] != tra_cmb.shape[0]:
-    print ("CHECK MERGING of tra_cmb. Length before and after is different")
-    print ('before:'), df_tra.shape[0]
-    print ('after:'), tra_cmb.shape[0]
-if df_tra['SUM_ASSURED'].sum() != tra_cmb['SUM_ASSURED'].sum():
-    print ("CHECK MERGING of tra_cmb. Total Sum Assured before and after is different")
+if os.path.exists(os.path.join(DATA, tra_name[0])) == True:
+    if df_tra.shape[0] != tra_cmb.shape[0]:
+        print ("CHECK MERGING of tra_cmb. Length before and after is different")
+        print ('before:'), df_tra.shape[0]
+        print ('after:'), tra_cmb.shape[0]
+    if df_tra['SUM_ASSURED'].sum() != tra_cmb['SUM_ASSURED'].sum():
+        print ("CHECK MERGING of tra_cmb. Total Sum Assured before and after is different")
 if df_tpd.shape[0] != tpd_cmb.shape[0]:
     print ("CHECK MERGING of tpd_cmb. Length before and after is different")
     print ('before:'), df_tpd.shape[0]
@@ -300,5 +318,6 @@ if os.path.exists(fpath_res) == False:
  
 death_cmb.to_csv(fpath_res + '\\' + 'Death' + run_name[-2:] + '.csv', index=False)
 tpd_cmb.to_csv(fpath_res + '\\' + 'TPD' + run_name[-2:] + '.csv', index=False)
-tra_cmb.to_csv(fpath_res + '\\' + 'Trauma' + run_name[-2:] + '.csv', index=False)
+if os.path.exists(os.path.join(DATA, tra_name[0])) == True:
+    tra_cmb.to_csv(fpath_res + '\\' + 'Trauma' + run_name[-2:] + '.csv', index=False)
 ip_cmb.to_csv(fpath_res + '\\' + 'Income secure' + run_name[-2:] + '.csv', index=False)
