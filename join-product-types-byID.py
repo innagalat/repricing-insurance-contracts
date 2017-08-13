@@ -6,8 +6,8 @@ from sets import Set
 import sys
 from datetime import datetime 
 
-# run_name = '0.repricing-run02'   
-run_name = '0.repricing-run06'
+run_name = '0.repricing-run02'   
+# run_name = '0.repricing-run06'
 
 # policy_subset = 'super-cover'
 policy_subset = 'ordinary-cover'
