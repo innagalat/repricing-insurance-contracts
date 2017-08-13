@@ -6,12 +6,15 @@ from sets import Set
 import sys
 from datetime import datetime 
 
+run_name = '0.repricing-run02'   
+# run_name = '0.repricing-run06'
+
+# policy_subset = 'super-cover'
+policy_subset = 'ordinary-cover'
+
 PROJ = 'C:\galati_files\pyscripts\callo-repricing\compare-runs'
-DATA = os.path.join(PROJ, 'data', 'super-cover')
-RESULT = os.path.join(PROJ, 'results\\super-cover')
-print DATA
-# run_name = '0.repricing-run02'   
-run_name = '0.repricing-run06'
+DATA = os.path.join(PROJ, 'data', policy_subset)
+RESULT = os.path.join(PROJ, 'results', policy_subset)
 
 f_run_name = run_name[-5:]#last 5 letters
 print f_run_name
@@ -61,6 +64,7 @@ def read_if_exists(fpath):
 def read_and_slice(nfold, nfile, col_list):
     path = get_file_path(nfold, nfile)
     df = read_if_exists(path)
+    print 'path:', path
     df = df.ix[:, col_list]
     return(df)
 
@@ -95,27 +99,34 @@ def read_and_check(run_name, filename, col_list1):
                 df1.ix[:,'PREMIUM_TYPE'] = [x.replace(' ', '') for x in df1.ix[:,'PREMIUM_TYPE']]
 
     if 'L_LIFE_ID' in col_list1:
+
+        if type(df1.ix[0,'L_LIFE_ID']) ==str:
+            if '"' in df1.ix[0,'L_LIFE_ID']:
+                df1.ix[:,'L_LIFE_ID'] = [x.replace('"', '') for x in df1.ix[:,'L_LIFE_ID']]
+            if ' ' in df1.ix[0,'L_LIFE_ID']:
+                df1.ix[:,'L_LIFE_ID'] = [x.replace(' ', '') for x in df1.ix[:,'L_LIFE_ID']]
+
         if type(df1.ix[0,'L_LIFE_ID']) != int:
             df1.ix[:,'L_LIFE_ID'] = [as_integer(x) for x in df1.ix[:, 'L_LIFE_ID']]
     return(df1)
 
 
-def read_slice_combine(run_name, filename,col_list1):
-    df1_r = read_and_slice(run_name, filename[0], col_list1)
-    df2_r = read_and_slice(run_name, filename[1], col_list1)
-    if filename[2] > 0:
-        df3_r = read_and_slice(run_name, filename[2], col_list1)
-        df4_r = read_and_slice(run_name, filename[3], col_list1)
-        if filename[4] > 0:
-            df5_r = read_and_slice(run_name, filename[4], col_list1)
-            df6_r = read_and_slice(run_name, filename[5], col_list1)
-            df_ResultComb = pd.concat([df1_r, df2_r, df3_r, df4_r, df5_r, df6_r], ignore_index=True)
-        else:    
-            df_ResultComb = pd.concat([df1_r, df2_r, df3_r, df4_r], ignore_index=True)    
-    else:   
-        df_ResultComb = pd.concat([df1_r, df2_r], ignore_index=True)
+# def read_slice_combine(run_name, filename,col_list1):
+#     df1_r = read_and_slice(run_name, filename[0], col_list1)
+#     df2_r = read_and_slice(run_name, filename[1], col_list1)
+#     if filename[2] > 0:
+#         df3_r = read_and_slice(run_name, filename[2], col_list1)
+#         df4_r = read_and_slice(run_name, filename[3], col_list1)
+#         if filename[4] > 0:
+#             df5_r = read_and_slice(run_name, filename[4], col_list1)
+#             df6_r = read_and_slice(run_name, filename[5], col_list1)
+#             df_ResultComb = pd.concat([df1_r, df2_r, df3_r, df4_r, df5_r, df6_r], ignore_index=True)
+#         else:    
+#             df_ResultComb = pd.concat([df1_r, df2_r, df3_r, df4_r], ignore_index=True)    
+#     else:   
+#         df_ResultComb = pd.concat([df1_r, df2_r], ignore_index=True)
     
-    return df_ResultComb
+#     return df_ResultComb
 
 def merge_by_id(df_a, df_b):
     return(pd.merge(df_a, df_b, how = 'outer', 
@@ -145,7 +156,7 @@ col_list_ip_mpf = ['POL_NUMBER','L_LIFE_ID','AGE_AT_ENTRY', 'PREMIUM_TYPE',
                 'ANN_PHI_BEN', 'B_BEN_NO', 'ANNUAL_PREM',
                 'BENEFIT_CODE', 'DEFER_PER_MP', 'TOTAL_SI', 'BEN_PERIOD', 'OCC_CLASS', 
                 'DII_TYPE', 'BROKER', 'OTR_ANNPHIBEN', 'CHANNEL']
-
+#TOTAL_SI needs to be removed from all files.. do it later
 
 death_name = ['COCDL1.csv','COCDS1.csv', 'COCDS2.csv','COCDS3.csv']                
 tra_name = ['COCTL1.csv','COCTS1.csv']
@@ -171,8 +182,7 @@ df_death = pd.concat([df_death1_res, df_death2_res, df_death3_res, df_death4_res
         ignore_index=True)
 df_death = df_death.rename(columns = {'SUM_ASSD_PP':'SUM_ASSURED','OAP':'B_OFF_APREM',
                                     'POL_FEE_PP':'POLICY_FEE'})
-print 'df_death'
-print df_death.info()
+
 
 size_death_count = df_death1_res.shape[0] + df_death2_res.shape[0] +df_death3_res.shape[0] +df_death4_res.shape[0]
 size_death_ann_prem = df_death1_res['ANNUAL_PREM_1'] + df_death2_res['ANNUAL_PREM_1'] +df_death3_res['ANNUAL_PREM_1'] +df_death4_res['ANNUAL_PREM_1']
@@ -191,6 +201,8 @@ df_tpd2_res = read_and_check(run_name, tpd_name[1] , col_list_res_ls)
 df_tpd = pd.concat([df_tpd1_res, df_tpd2_res], ignore_index=True)
 df_tpd = df_tpd.rename(columns = {'SUM_ASSD_PP':'SUM_ASSURED','OAP':'B_OFF_APREM',
                                     'POL_FEE_PP':'POLICY_FEE'})
+
+
 df_ip =pd.DataFrame()
 for i in range(0,len(ip_name)):
     df_ip1 = read_and_check(run_name, ip_name[i], col_list_res_ip)
@@ -210,14 +222,15 @@ for i in range(0, len(death_name_mpf)):
   
 
 
-print df_death.info()
-print df_death_mpf.info()
-
 
 
 df_tpd_mpf1 = read_and_check('0.Mpf',tpd_name_mpf[0], col_list_ls_mpf)
 df_tpd_mpf2 = read_and_check('0.Mpf',tpd_name_mpf[1], col_list_ls_mpf)
 df_tpd_mpf = pd.concat([df_tpd_mpf1, df_tpd_mpf2], ignore_index=True)
+
+
+
+
 
 if os.path.exists(os.path.join(DATA, tra_name[0])) == True:
     df_tra_mpf1 = read_and_check('0.Mpf', tra_name_mpf[0], col_list_ls_mpf)
@@ -234,9 +247,6 @@ df_ip_mpf = df_ip_mpf.rename(columns = {'ANN_PHI_BEN':'SUM_ASSURED',
 
 
 
-
-
-
 # df_death.to_csv(fpath + '\\' + 'Death.csv', index=False)
 # df_tpd.to_csv(fpath + '\\' + 'TPD.csv', index=False)
 # df_tra.to_csv(fpath + '\\' + 'Trauma.csv', index=False)
@@ -249,33 +259,50 @@ df_ip_mpf = df_ip_mpf.rename(columns = {'ANN_PHI_BEN':'SUM_ASSURED',
 # df_ip_mpf.to_csv(r'C:\\galati_files\\pyscripts\\Callo_Repricing\\Compare_runs\\Mpf\\' + 'Income secure mpf.csv', index=False)
 
 
-   
-# print 'death mpf', df_death_mpf.head(2)
-# print 'tra mpf',df_tra_mpf.head(2)
-# print 'tpd mpf',df_tpd_mpf.head(2)
-# print 'ip mpf',df_ip_mpf.head(2)
 
-# print df_death.head(2)
-# print df_tra.head(2)
-# print df_tpd.head(2)
-# print df_ip.head(2)
 
 print df_death_mpf.info()
 print df_death.info()
 
+def check_length(df_1, df_2):
+    if df_1.shape[0] != df_2.shape[0]:
+        print ("CHECK length before concat. Length is different")
+        print ('file1:'), df_1.shape[0]
+        print ('file2:'), df_2.shape[0]
+
+check_length(df_death_mpf,df_death)
+check_length(df_tpd_mpf,df_tpd)
+check_length(df_ip_mpf, df_ip)
+if os.path.exists(os.path.join(DATA, tra_name[0])) == True:
+        check_length(df_tra_mpf,df_tra)
+
 death_cmb =pd.concat([df_death_mpf,df_death], axis = 1)
 tpd_cmb = pd.concat([df_tpd_mpf,df_tpd], axis = 1)
+ip_cmb = merge_by_id(df_ip_mpf, df_ip)
 if os.path.exists(os.path.join(DATA, tra_name[0])) == True:
     tra_cmb = pd.concat([df_tra_mpf,df_tra], axis = 1)
-ip_cmb = merge_by_id(df_ip_mpf, df_ip)
-
 
 death_cmb = death_cmb.loc[:,~death_cmb.columns.duplicated()]
-if os.path.exists(os.path.join(DATA, tra_name[0])) == True:
-    tra_cmb = tra_cmb.loc[:,~tra_cmb.columns.duplicated()]
 tpd_cmb = tpd_cmb.loc[:,~tpd_cmb.columns.duplicated()]
 ip_cmb = ip_cmb.drop_duplicates(['POL_NUMBER', 'L_LIFE_ID','SUM_ASSURED', 'AGE_AT_ENTRY', 'B_BEN_NO'])
+if os.path.exists(os.path.join(DATA, tra_name[0])) == True:
+    tra_cmb = tra_cmb.loc[:,~tra_cmb.columns.duplicated()]
 
+
+def check_report_err(df_1, df_2):
+    if df_1.shape[0] != df_2.shape[0]:
+        print ("CHECK MERGING of files. Length before and after is different")
+        print ('before:'), df_1.shape[0]
+        print ('after:'), df_2.shape[0]
+    if df_1['SUM_ASSURED'].sum() != df_2['SUM_ASSURED'].sum():
+        print ("CHECK MERGING of files. Total Sum Assured before and after is different")
+
+
+check_report_err(df_death, death_cmb)
+check_report_err(df_tpd, tpd_cmb)
+check_report_err(df_ip, ip_cmb)
+if os.path.exists(os.path.join(DATA, tra_name[0])) == True:
+    check_report_err(df_tra, ip_tra)
 
 # Check that merged correctly:
 if df_death.shape[0] != death_cmb.shape[0]:
@@ -314,10 +341,13 @@ print fpath_res
 
 if os.path.exists(fpath_res) == False:
      os.makedirs(fpath_res)
-
+print ip_cmb['ANNUAL_PREM_1'].sum()
+exit('0')
  
 death_cmb.to_csv(fpath_res + '\\' + 'Death' + run_name[-2:] + '.csv', index=False)
 tpd_cmb.to_csv(fpath_res + '\\' + 'TPD' + run_name[-2:] + '.csv', index=False)
+ip_cmb.to_csv(fpath_res + '\\' + 'Income secure' + run_name[-2:] + '.csv', index=False)
+
+
 if os.path.exists(os.path.join(DATA, tra_name[0])) == True:
     tra_cmb.to_csv(fpath_res + '\\' + 'Trauma' + run_name[-2:] + '.csv', index=False)
-ip_cmb.to_csv(fpath_res + '\\' + 'Income secure' + run_name[-2:] + '.csv', index=False)
