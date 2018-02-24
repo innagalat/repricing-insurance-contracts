@@ -13,8 +13,8 @@ def DollarDiffCalc(x,y):
    return (y - x)
 
 
-# policy_subset = 'ordinary-cover'
-policy_subset = 'super-cover'
+policy_subset = 'ordinary-cover'
+# policy_subset = 'super-cover'
 
 PROJ = 'C:\galati_files\pyscripts\callo-repricing\compare-runs'
 DATA = os.path.join(PROJ, 'data', policy_subset)
@@ -60,10 +60,10 @@ print df.info()
 
 
 df['%Ch_Total_Prem(R02vsR06)'] = df.apply(lambda row:
-						percCalc(row['TOT_ANN_PREM_R02'], row['TOT_ANN_PREM_R06']), axis=1)
+						percCalc(row['TOT_PREM1_R02'], row['TOT_PREM1_R06']), axis=1)
 
 df['$Diff_Total_Prem(R02vsR06)'] = df.apply(lambda row:
-						DollarDiffCalc(row['TOT_ANN_PREM_R02'], row['TOT_ANN_PREM_R06']), axis=1)
+						DollarDiffCalc(row['TOT_PREM1_R02'], row['TOT_PREM1_R06']), axis=1)
 
 
 df['%Ch_Total_Prem_13(R02vsR06)'] = df.apply(lambda row:
@@ -73,21 +73,21 @@ df['$Diff_Total_Prem_13(R02vsR06)'] = df.apply(lambda row:
 
 
 df['%Ch_Tot_Prem(R02)_toPrem13(R06)'] = df.apply(lambda row:
-						percCalc(row['TOT_ANN_PREM_R02'], row['TOT_PREM_13_R06']), axis=1)
+						percCalc(row['TOT_PREM1_R02'], row['TOT_PREM_13_R06']), axis=1)
 df['$Diff_Tot_Prem(R02)_toPrem13(R06)'] = df.apply(lambda row:
-						DollarDiffCalc(row['TOT_ANN_PREM_R02'], row['TOT_PREM_13_R06']), axis=1)
+						DollarDiffCalc(row['TOT_PREM1_R02'], row['TOT_PREM_13_R06']), axis=1)
 
 
 df['%Ch_Tot_Prem(R02)_toPrem13(R02)'] = df.apply(lambda row:
-						percCalc(row['TOT_ANN_PREM_R02'], row['TOT_PREM_13_R02']), axis=1)
+						percCalc(row['TOT_PREM1_R02'], row['TOT_PREM_13_R02']), axis=1)
 df['$Diff_Tot_Prem(R02)_toPrem13(R02)'] = df.apply(lambda row:
-						DollarDiffCalc(row['TOT_ANN_PREM_R02'], row['TOT_PREM_13_R02']), axis=1)
+						DollarDiffCalc(row['TOT_PREM1_R02'], row['TOT_PREM_13_R02']), axis=1)
 
 
 df['%Ch_Tot_Prem(R06)_toPrem13(R06)'] = df.apply(lambda row:
-						percCalc(row['TOT_ANN_PREM_R06'], row['TOT_PREM_13_R06']), axis=1)
+						percCalc(row['TOT_PREM1_R06'], row['TOT_PREM_13_R06']), axis=1)
 df['$Diff_Tot_Prem(R06)_toPrem13(R06)'] = df.apply(lambda row:
-						DollarDiffCalc(row['TOT_ANN_PREM_R06'], row['TOT_PREM_13_R06']), axis=1)
+						DollarDiffCalc(row['TOT_PREM1_R06'], row['TOT_PREM_13_R06']), axis=1)
 
 
 # df['%Ch_LIFE_PV_Prem'] = df.apply(lambda row:
@@ -135,7 +135,7 @@ print df.columns.values
 
 if policy_subset == 'ordinary-cover':
 	cols = ['L_LIFE_ID', 'PACKAGE', 'AGE', 'SEX', 'SMOKER_IND', 'AGE-GROUP', 
-		'TOT_ANN_PREM_R02', 'TOT_ANN_PREM_R06','TOT_PREM_13_R02', 'TOT_PREM_13_R06','TOT_BEL_R02', 'TOT_BEL_R06',
+		'TOT_PREM1_R02', 'TOT_PREM1_R06','TOT_PREM_13_R02', 'TOT_PREM_13_R06','TOT_BEL_R02', 'TOT_BEL_R06',
 		'%Ch_Total_Prem(R02vsR06)', '$Diff_Total_Prem(R02vsR06)', '%bin_Total_Prem(R02vsR06)',
 	 	'%Ch_Total_Prem_13(R02vsR06)', '$Diff_Total_Prem_13(R02vsR06)', '%bin_Total_Prem_13(R02vsR06)',
 	 	'%Ch_Tot_Prem(R02)_toPrem13(R06)', '$Diff_Tot_Prem(R02)_toPrem13(R06)', '%bin_Tot_Prem(R02)_toPrem13(R06)',
@@ -161,7 +161,7 @@ if policy_subset == 'ordinary-cover':
 
 elif policy_subset == 'super-cover':
 	cols = ['L_LIFE_ID', 'PACKAGE', 'AGE', 'SEX', 'SMOKER_IND', 'AGE-GROUP', 
-		'TOT_ANN_PREM_R02', 'TOT_ANN_PREM_R06','TOT_PREM_13_R02', 'TOT_PREM_13_R06','TOT_BEL_R02', 'TOT_BEL_R06',
+		'TOT_PREM1_R02', 'TOT_PREM1_R06','TOT_PREM_13_R02', 'TOT_PREM_13_R06','TOT_BEL_R02', 'TOT_BEL_R06',
 		'%Ch_Total_Prem(R02vsR06)', '$Diff_Total_Prem(R02vsR06)', '%bin_Total_Prem(R02vsR06)',
 	 	'%Ch_Total_Prem_13(R02vsR06)', '$Diff_Total_Prem_13(R02vsR06)', '%bin_Total_Prem_13(R02vsR06)',
 	 	'%Ch_Tot_Prem(R02)_toPrem13(R06)', '$Diff_Tot_Prem(R02)_toPrem13(R06)', '%bin_Tot_Prem(R02)_toPrem13(R06)',
