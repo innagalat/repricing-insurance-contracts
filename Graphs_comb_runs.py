@@ -19,6 +19,10 @@ policy_subset = 'super-cover'
 PROJ = 'C:\galati_files\pyscripts\callo-repricing\compare-runs'
 RESULT = os.path.join(PROJ, 'results', policy_subset, 'final')
 
+
+flag_test = False
+
+
 fpath_res = os.path.join(RESULT, 'graphs')
 print fpath_res
 
@@ -48,30 +52,40 @@ print ('start of program')
 if policy_subset == 'ordinary-cover':
     df = pd.read_csv(os.path.join(RESULT,'Combined(R02&R06)_byID.csv'), index_col = False)
 elif policy_subset == 'super-cover':
-    df = pd.read_csv(os.path.join(RESULT,'Combined(R02&R06)_byID_wBROKER-sup.csv'), index_col = False) 
+    df = pd.read_csv(os.path.join(RESULT,'Combined(R02&R06)_byPol_wBROKER-sup.csv'), index_col = False) 
 
 
-print df['%Ch_Total_Prem(R02vsR06)'].describe()
-print df['%Ch_Tot_Prem(R02)_toPrem13(R06)'].describe()
+print df['%Ch_Tot_Prem1_toPrem13'].describe()
+print df['%Ch_Prem13_to_Prem25'].describe()
 
 # print ('largest:')
-# sub_lrg = df.nlargest(3, '%Ch_Total_Prem(R02vsR06)')
+# sub_lrg = df.nlargest(3, '%Ch_Tot_Prem1_toPrem13')
 # sub_lrd = sub_lrg.reset_index()
 # print sub_lrg
 
 
+# '%Ch_Total_Prem(R02vsR06)'
+# '%Ch_Tot_Prem1_toPrem13'
+# '%bin_Total_Prem(R02vsR06)'
+# '%bin_Tot_Prem_toPrem13'
 
-df=df.sort_values('%Ch_Total_Prem(R02vsR06)')
-df_over30 = df.loc[df['%bin_Total_Prem(R02vsR06)'].isin(['[30%; 40%)', '[40%; 50%)', '[50%; 60%)', '[> 60%)'])]
+df = df.sort_values('%Ch_Tot_Prem1_toPrem13')
+# df_over30 = df.loc[df[%bin_Tot_Prem_toPrem13].isin(['[30%; 40%)', '[40%; 50%)', '[50%; 60%)', '[> 60%)'])]
 
 
 plt.figure(figsize=(15,9))
-plot4 = sns.countplot(x = '%bin_Total_Prem(R02vsR06)', hue ='PACKAGE', data = df, palette=pkmn_type_colors)
+plot4 = sns.countplot(x = '%bin_Tot_Prem_toPrem13', hue ='PACKAGE', data = df, palette=pkmn_type_colors)
 plt.xticks(rotation = 90)
 plt.legend(bbox_to_anchor = (1,1), loc = 1)
-plt.title('Count dsn of % Change per life_id')
+plt.title('Count dsn of % Change, Prem1 to Prem13')
 plt.show()    
 
+plt.figure(figsize=(15,9))
+plot4 = sns.countplot(x = '%bin_Prem13_to_Prem25', hue ='PACKAGE', data = df, palette=pkmn_type_colors)
+plt.xticks(rotation = 90)
+plt.legend(bbox_to_anchor = (1,1), loc = 1)
+plt.title('Count dsn of % Change, Prem13 to Prem25')
+plt.show()  
 # sns.violinplot(x="Package", y = '%Ch_Total_New_Prem', hue='Sex', data = df, split=True)
 # plt.xticks(rotation= -45)
 # plt.show()
@@ -98,8 +112,9 @@ def count_freq(df_used, col_used, benemix_name, scale_factor):
     for p in ax.patches:
         x=p.get_bbox().get_points()[:,0]
         y=p.get_bbox().get_points()[1,1]
-        print x.mean()
-        print y
+        if flag_test == True:
+            print x.mean()
+            print y
         ax.annotate('{:.0f}%'.format(100.*y/ncount), (x.mean(), y), 
                 ha='center', va='bottom', color= 'blue') # set the alignment of the text
         # ax.annotate('(~{:.0f})'.format(1.*y), (x.mean(), y), 
@@ -115,11 +130,11 @@ def count_freq(df_used, col_used, benemix_name, scale_factor):
     # Need to turn the grid on ax2 off, otherwise the gridlines end up on top of the bars
     ax2.grid(None)
     
-    if col_used == '%bin_Tot_Prem(R02)_toPrem13(R06)':
-        plt.savefig(fpath_res + '\\' + 'Figure_Prem(R02)_toPrem13&R06)' + benemix_name +'.png') 
+    if col_used == '%bin_Tot_Prem_toPrem13':
+        plt.savefig(fpath_res + '\\' + 'Figure_Prem1_toPrem13)' + benemix_name +'.png') 
     
-    elif col_used == '%bin_Total_Prem(R02vsR06)':
-        plt.savefig(fpath_res + '\\' + 'Figure_Prem(R02&R06)' + benemix_name +'.png') 
+    elif col_used == '%bin_Prem13_to_Prem25':
+        plt.savefig(fpath_res + '\\' + 'Figure_Prem13_toPrem25' + benemix_name +'.png') 
 
     return(0) #plt.show()
 
@@ -127,7 +142,7 @@ def count_freq(df_used, col_used, benemix_name, scale_factor):
 
 if policy_subset == 'ordinary-cover':
     print policy_subset, ' used'
-    col_used = '%bin_Total_Prem(R02vsR06)'
+    col_used = '%bin_Tot_Prem_toPrem13'
     count_freq(df, col_used, '(all Mix benefits)', 0.5)
     count_freq(df.loc[df['PACKAGE'] == u'LIFE   '], col_used, '(Life benefit)', 1)
     count_freq(df.loc[df['PACKAGE'] == u'LIFE TRA  '], col_used, '(Life and Trauma benefit)', 0.7)
@@ -146,46 +161,46 @@ if policy_subset == 'ordinary-cover':
     count_freq(df.loc[df['PACKAGE'] == u' TRA  '], col_used, '(Trauma benefit)', 0.7)
 
 
-    col_used = '%bin_Tot_Prem(R02)_toPrem13(R06)'
-    count_freq(df, col_used, '(all Mix benefits)', 0.5)
-    count_freq(df.loc[df['PACKAGE'] == u'LIFE   '], col_used, '(Life benefit)', 1)
-    count_freq(df.loc[df['PACKAGE'] == u'LIFE TRA  '], col_used, '(Life and Trauma benefit)', 0.7)
-    count_freq(df.loc[df['PACKAGE'] == u'LIFE TRA TPD IP'], col_used, '(Life & Trauma & TPD & IP benefit)', 0.7)
-    count_freq(df.loc[df['PACKAGE'] == u'LIFE   IP'], col_used, '(Life & IP benefit)', 0.7)
-    count_freq(df.loc[df['PACKAGE'] == u'LIFE TRA TPD '], col_used, '(Life & Trauma & TPD benefit)', 0.5)
-    count_freq(df.loc[df['PACKAGE'] == u'LIFE TRA  IP'], col_used, '(Life & Trauma & IP benefit)', 0.5)
-    count_freq(df.loc[df['PACKAGE'] == u'LIFE  TPD IP'], col_used, '(Life & TPD & IP benefit)', 0.7)
-    count_freq(df.loc[df['PACKAGE'] == u'LIFE  TPD '], col_used, '(Life & TPD benefit)', 0.7)
-    count_freq(df.loc[df['PACKAGE'] == u'   IP'], col_used, '(IP benefit)', 0.5)
-    count_freq(df.loc[df['PACKAGE'] == u' TRA  IP'], col_used, '(Trauma & IP benefit)', 0.5)
-    count_freq(df.loc[df['PACKAGE'] == u' TRA TPD IP'], col_used, '(Trauma & TPD & IP benefit)', 0.5)
-    count_freq(df.loc[df['PACKAGE'] == u'  TPD IP'], col_used, '(TPD & IP benefit)', 0.5)
-    count_freq(df.loc[df['PACKAGE'] == u' TRA TPD '], col_used, '(Trauma & TPD benefit)', 0.7)
-    count_freq(df.loc[df['PACKAGE'] == u'  TPD '], col_used, '(TPD benefit)', 0.7)
-    count_freq(df.loc[df['PACKAGE'] == u' TRA  '], col_used, '(Trauma benefit)', 0.7)
+    col_used = '%bin_Prem13_to_Prem25'
+    count_freq(df, col_used, '(all Mix benefits)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u'LIFE   '], col_used, '(Life benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u'LIFE TRA  '], col_used, '(Life and Trauma benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u'LIFE TRA TPD IP'], col_used, '(Life & Trauma & TPD & IP benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u'LIFE   IP'], col_used, '(Life & IP benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u'LIFE TRA TPD '], col_used, '(Life & Trauma & TPD benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u'LIFE TRA  IP'], col_used, '(Life & Trauma & IP benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u'LIFE  TPD IP'], col_used, '(Life & TPD & IP benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u'LIFE  TPD '], col_used, '(Life & TPD benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u'   IP'], col_used, '(IP benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u' TRA  IP'], col_used, '(Trauma & IP benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u' TRA TPD IP'], col_used, '(Trauma & TPD & IP benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u'  TPD IP'], col_used, '(TPD & IP benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u' TRA TPD '], col_used, '(Trauma & TPD benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u'  TPD '], col_used, '(TPD benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u' TRA  '], col_used, '(Trauma benefit)', 0.6)
 
 
 
 elif policy_subset == 'super-cover':
 
-    col_used = '%bin_Total_Prem(R02vsR06)'
-    count_freq(df, col_used, '(all Mix benefits)', 0.7)
-    count_freq(df.loc[df['PACKAGE'] == u'LIFE  '], col_used, '(Life benefit)', 0.7)
-    count_freq(df.loc[df['PACKAGE'] == u'LIFE TPD '], col_used, '(Life and TPD benefit)', 1)
-    count_freq(df.loc[df['PACKAGE'] == u'LIFE TPD IP'], col_used, '(Life & TPD & IP benefit)', 0.7)
-    count_freq(df.loc[df['PACKAGE'] == u'LIFE  IP'], col_used, '(Life & IP benefit)', 0.5)
-    count_freq(df.loc[df['PACKAGE'] == u'  IP'], col_used, '(IP benefit)', 0.5)
-    count_freq(df.loc[df['PACKAGE'] == u' TPD IP'], col_used, '(TPD & IP benefit)', 0.7)
-    count_freq(df.loc[df['PACKAGE'] == u' TPD '], col_used, '(TPD benefit)', 1)
+    col_used = '%bin_Tot_Prem_toPrem13'
+    count_freq(df, col_used, '(all Mix benefits)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u'LIFE  '], col_used, '(Life benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u'LIFE TPD '], col_used, '(Life and TPD benefit)', 0.65)
+    count_freq(df.loc[df['PACKAGE'] == u'LIFE TPD IP'], col_used, '(Life & TPD & IP benefit)', 0.65)
+    count_freq(df.loc[df['PACKAGE'] == u'LIFE  IP'], col_used, '(Life & IP benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u'  IP'], col_used, '(IP benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u' TPD IP'], col_used, '(TPD & IP benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u' TPD '], col_used, '(TPD benefit)', 0.6)
 
-    col_used = '%bin_Tot_Prem(R02)_toPrem13(R06)'
-    count_freq(df, col_used, '(all Mix benefits)', 1)
-    count_freq(df.loc[df['PACKAGE'] == u'LIFE  '], col_used, '(Life benefit)', 0.7)
-    count_freq(df.loc[df['PACKAGE'] == u'LIFE TPD '], col_used, '(Life and TPD benefit)', 1)
-    count_freq(df.loc[df['PACKAGE'] == u'LIFE TPD IP'], col_used, '(Life & TPD & IP benefit)', 0.7)
-    count_freq(df.loc[df['PACKAGE'] == u'LIFE  IP'], col_used, '(Life & IP benefit)', 0.7)
-    count_freq(df.loc[df['PACKAGE'] == u'  IP'], col_used, '(IP benefit)', 0.5)
-    count_freq(df.loc[df['PACKAGE'] == u' TPD IP'], col_used, '(TPD & IP benefit)', 0.7)
-    count_freq(df.loc[df['PACKAGE'] == u' TPD '], col_used, '(TPD benefit)', 0.7)
+    col_used = '%bin_Prem13_to_Prem25'
+    count_freq(df, col_used, '(all Mix benefits)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u'LIFE  '], col_used,    '(Life benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u'LIFE TPD '], col_used, '(Life and TPD benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u'LIFE TPD IP'], col_used,'(Life & TPD & IP benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u'LIFE  IP'], col_used,  '(Life & IP benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u'  IP'], col_used,      '(IP benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u' TPD IP'], col_used,   '(TPD & IP benefit)', 0.6)
+    count_freq(df.loc[df['PACKAGE'] == u' TPD '], col_used,     '(TPD benefit)', 0.6)
 
 print df.loc[:,'PACKAGE'].unique()
