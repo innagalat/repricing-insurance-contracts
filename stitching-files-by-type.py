@@ -5,11 +5,11 @@ import numpy as np
 import os
 
 # choose the run that is required and run them separately
-run_name = '0.repricing-run02'   
-# run_name = '0.repricing-run06'
+# run_name = '0.repricing-run02'   
+run_name = '0.repricing-run06'
  
-policy_subset = 'super-cover'
-# policy_subset = 'ordinary-cover'
+# policy_subset = 'super-cover'
+policy_subset = 'ordinary-cover'
 
 ind_extra_col = True
 # ind_extra_col = False
