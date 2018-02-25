@@ -9,8 +9,8 @@ import os
 run_name = '0.repricing-run06'
 
 
-# policy_subset = 'ordinary-cover'
-policy_subset = 'super-cover'
+policy_subset = 'ordinary-cover'
+# policy_subset = 'super-cover'
 
 #indicator switch for extra columns, ordinary policies at the moment
 ind_extra_col = True
@@ -163,6 +163,9 @@ group_names_ip = ['Below $1K', '$1K - $2.5K', '$2.5K - $5K', '$5K - $7.5K', '$7.
 result_frame['AGE-GROUP'] = pd.cut(result_frame['AGE'], bins_age, labels = group_names_age)
 result_frame['SI_LS_BAND'] = pd.cut(result_frame['SA'], bins_ls, labels = group_names_ls)
 result_frame['SI_IP_BAND'] = pd.cut(result_frame['SA_IP'], bins_ip, labels = group_names_ip)
+result_frame['ENTRY_DATE'] = result_frame.apply(lambda x: '01/' + str(x['ENTRY_MONTH']) +'/'+ str(x['ENTRY_YEAR']), axis = 1)
+
+
 
 cols = result_frame.columns.tolist()
 print result_frame.columns.values
@@ -170,7 +173,7 @@ print result_frame.columns.values
 
 if policy_subset == 'ordinary-cover':
 	cols = ['L_LIFE_ID','POL_NUMBER', 'SEX', 'SMOKER_IND', 'AGE', 'AGE-GROUP', 'TOTAL_SI', 
-		'Death', 'TRA', 'TPD','IP', 'ENTRY_MONTH',
+		'Death', 'TRA', 'TPD','IP', 'ENTRY_MONTH', 'ENTRY_YEAR', 'ENTRY_DATE',
 		'SA', 'SA_IP',
 		'A_PREM', 'A_PREM_13', 'BEL',
 		'BENEFIT_CODE', 'BEN_PERIOD', 'B_BEN_NO', 'PREMIUM_TYPE',  
@@ -180,7 +183,7 @@ if policy_subset == 'ordinary-cover':
 		 ]
 else:
 	cols = ['L_LIFE_ID','POL_NUMBER', 'SEX', 'SMOKER_IND', 'AGE', 'AGE-GROUP', 'TOTAL_SI', 
-		'Death', 'TPD','IP', 'ENTRY_MONTH',
+		'Death', 'TPD','IP', 'ENTRY_MONTH', 'ENTRY_YEAR',
 		'SA', 'SA_IP', 
 		'A_PREM', 'A_PREM_13', 'BEL',
 		'BENEFIT_CODE', 'BEN_PERIOD', 'B_BEN_NO', 'PREMIUM_TYPE',  
