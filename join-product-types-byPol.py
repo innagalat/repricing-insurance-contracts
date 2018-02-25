@@ -114,9 +114,6 @@ death_cmb = pd.read_csv(fpath_res + '\\' + 'Death' + run_name[-2:] + '.csv',
 						dtype = {'L_LIFE_ID':np.int32, 'POL_NUMBER': np.int32})
 tpd_cmb = pd.read_csv(fpath_res + '\\' + 'TPD' + run_name[-2:] + '.csv',
 						dtype = {'L_LIFE_ID':np.int32, 'POL_NUMBER': np.int32})
-#tpd_cmb['L_LIFE_ID'] = tpd_cmb['L_LIFE_ID'].astype(int)
-#tpd_cmb['POL_NUMBER'] = tpd_cmb['POL_NUMBER'].astype(int) 
-
 ip_cmb = pd.read_csv(fpath_res + '\\' + 'Income secure' + run_name[-2:] + '.csv',
 						dtype = {'L_LIFE_ID':np.int32, 'POL_NUMBER': np.int32})
 
@@ -552,6 +549,7 @@ def adding_bins(df_frame):
 	return df_frame
 
 result_frame = adding_bins(result_frame)
+result_frame['ENTRY_DATE'] = result_frame.apply(lambda x: '01/' + str(int(x['Entry Mnth'])) +'/'+ str(int(x['Entry Year'])), axis = 1)
 print result_frame.columns.values
 
 
@@ -559,7 +557,9 @@ print result_frame.columns.values
 if os.path.exists(os.path.join(fpath_res + '\\' + 'Trauma' + run_name[-2:] + '.csv')) == True:
 
 	cols = ['POL_L_ID',
-		'L_LIFE_ID', 'POL_NUMBER', 'Entry Mnth', 'Entry Year',
+		'L_LIFE_ID', 'POL_NUMBER',
+		'Entry Mnth', 'Entry Year',  'ENTRY_DATE',
+
 		'PACKAGE', 'AGE', 'AGE-GROUP', 'SEX', 'SMOKER_IND', 'TOT_POL_FEE',
 
 		'TOT_BEL','TOT_PREM1', 'TOT_PREM_13', 'TOT_PREM_25',
@@ -581,7 +581,8 @@ if os.path.exists(os.path.join(fpath_res + '\\' + 'Trauma' + run_name[-2:] + '.c
 else:
 
 	cols = [ 'POL_L_ID',
-		'L_LIFE_ID', 'POL_NUMBER', 'Entry Mnth', 'Entry Year',
+		'L_LIFE_ID', 'POL_NUMBER',
+		'Entry Mnth', 'Entry Year', 'ENTRY_DATE',
 		'PACKAGE', 'AGE', 'AGE-GROUP', 'SEX', 'SMOKER_IND', 'TOT_POL_FEE',
 
 		'TOT_BEL','TOT_PREM1', 'TOT_PREM_13', 'TOT_PREM_25',
