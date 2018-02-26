@@ -5,8 +5,8 @@ import pandas as pd
 import numpy as np
 import os
 
-# run_name = '0.repricing-run02'   
-run_name = '0.repricing-run06'
+run_name = '0.repricing-run02'   
+# run_name = '0.repricing-run06'
 
 
 policy_subset = 'ordinary-cover'
@@ -17,7 +17,7 @@ ind_extra_col = True
 
 # if extra columns are used, please add extra columns names to the list extra_col
 if ind_extra_col == True:
-	extra_col = ['BE_GRRESERVE', 'ANNUAL_PREM_25'] # ,  'PV_GR_CARR']
+	extra_col = ['BE_GRRESERVE'] # ,  'PV_GR_CARR']
 
 
 PROJ = 'C:\galati_files\pyscripts\callo-repricing\compare-runs'
@@ -50,8 +50,9 @@ def as_integer(value):
 def return_result_2(data):
 	data['SA'] = data['SUM_ASSURED'] # same to: data['SA'] = data.groupby(aggregations_on_string)['SUM_ASSURED'].transform(lambda x:x)
 	data['BASE_PREM'] = data['B_OFF_APREM']
-	data['A_PREM'] = data['ANNUAL_PREM_1']
+	data['A_PREM1'] = data['ANNUAL_PREM_1']
 	data['A_PREM_13'] = data['ANNUAL_PREM_13']
+	data['A_PREM_25'] = data['ANNUAL_PREM_25']
 	data['BEL'] = data['BE_RESERVE']
 	data['POL_FEE'] = data['POLICY_FEE']
 	# data = data.drop_duplicates(['L_LIFE_ID'])
@@ -61,7 +62,7 @@ def return_result_2(data):
 	# 		data[i] =  data[i]
 
 	data = data.drop(['B_OFF_APREM', 'BE_RESERVE',
-				'ANNUAL_PREM_1', 'ANNUAL_PREM_13'],
+				'ANNUAL_PREM_1', 'ANNUAL_PREM_13', 'ANNUAL_PREM_25'],
 												axis = 1)
 	data = data.drop(['SUM_ASSURED', 'POLICY_FEE'], axis = 1)
 	
@@ -175,7 +176,7 @@ if policy_subset == 'ordinary-cover':
 	cols = ['L_LIFE_ID','POL_NUMBER', 'SEX', 'SMOKER_IND', 'AGE', 'AGE-GROUP', 'TOTAL_SI', 
 		'Death', 'TRA', 'TPD','IP', 'ENTRY_MONTH', 'ENTRY_YEAR', 'ENTRY_DATE',
 		'SA', 'SA_IP',
-		'A_PREM', 'A_PREM_13', 'BEL',
+		'A_PREM1', 'A_PREM_13', 'A_PREM_25', 'BEL',
 		'BENEFIT_CODE', 'BEN_PERIOD', 'B_BEN_NO', 'PREMIUM_TYPE',  
 		'DEFER_PER_MP', 'DII_TYPE', 'OCC_CLASS',
 		'TOTAL_SI', 'OTR_ANNPHIBEN', 'DCS_REIN_SI','CHANNEL', 'BROKER', 
@@ -185,7 +186,7 @@ else:
 	cols = ['L_LIFE_ID','POL_NUMBER', 'SEX', 'SMOKER_IND', 'AGE', 'AGE-GROUP', 'TOTAL_SI', 
 		'Death', 'TPD','IP', 'ENTRY_MONTH', 'ENTRY_YEAR',
 		'SA', 'SA_IP', 
-		'A_PREM', 'A_PREM_13', 'BEL',
+		'A_PREM1', 'A_PREM_13', 'A_PREM_25', 'BEL',
 		'BENEFIT_CODE', 'BEN_PERIOD', 'B_BEN_NO', 'PREMIUM_TYPE',  
 		'DEFER_PER_MP', 'DII_TYPE', 'OCC_CLASS',
 		'TOTAL_SI', 'OTR_ANNPHIBEN', 'DCS_REIN_SI','CHANNEL', 'BROKER', 
