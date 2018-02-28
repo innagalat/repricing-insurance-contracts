@@ -34,6 +34,7 @@ RESULT = os.path.join(PROJ, 'results', policy_subset)
 # Check when different sized resuts and mpf files
 count1 = 0
 count2 = 0
+
 for filename in os.listdir(os.path.join(PROJ, DATA, run_name)):
     # print ('Reading '), filename
     df = pd.read_csv(os.path.join(PROJ, DATA, run_name, filename))
@@ -127,6 +128,9 @@ def concat_by_type(folderdir, csv_list, col_list, columns_to_rename):
     prem_count25 = 0
     si = 0    
 
+    prem_count1_S = 0
+    prem_count1_L = 0
+
     for item in csv_list:
         df_res = read_and_check(folderdir, item, col_list)
         appended_data.append(df_res)
@@ -137,7 +141,8 @@ def concat_by_type(folderdir, csv_list, col_list, columns_to_rename):
         prem_count13 = prem_count13 + df_res.ANNUAL_PREM_13.sum()
         prem_count25 = prem_count25 + df_res.ANNUAL_PREM_25.sum()
         si = si + df_res.SUM_ASSURED.sum()
-        
+        prem_count1_S = prem_count1_S + df_res.ANNUAL_PREM_1[df_res['PREMIUM_TYPE'] == 'S'].sum()
+        prem_count1_L = prem_count1_L + df_res.ANNUAL_PREM_1[df_res['PREMIUM_TYPE'] == 'L'].sum()
 
     
     df = pd.concat(appended_data, axis=0, ignore_index=True)
@@ -151,6 +156,7 @@ def concat_by_type(folderdir, csv_list, col_list, columns_to_rename):
     # print ('prem13    '), prem_count13
     # print ('prem25    '), prem_count25
     # print ('sum of SI:'), si
+    print prem_count1_S, prem_count1_L
 
     return df
 
@@ -163,7 +169,9 @@ def concat_by_type_ip(folderdir, csv_list, col_list, columns_to_rename):
     prem_count1 = 0
     prem_count13 = 0
     prem_count25 = 0
-    si = 0    
+    si = 0
+    prem_count1_S = 0
+    prem_count1_L = 0    
 
     for item in csv_list:
         df_res = read_and_check(folderdir, item, col_list)
@@ -175,7 +183,9 @@ def concat_by_type_ip(folderdir, csv_list, col_list, columns_to_rename):
         prem_count13 = prem_count13 + df_res.ANNUAL_PREM_12.sum()
         prem_count25 = prem_count25 + df_res.ANNUAL_PREM_24.sum()
         # si = si + df_res.SUM_ASSURED.sum()
-        
+        # prem_count1_S = prem_count1_S + df_res.ANNUAL_PREM_1[df_res['PREMIUM_TYPE'] == 'S'].sum()
+        # prem_count1_L = prem_count1_L + df_res.ANNUAL_PREM_1[df_res['PREMIUM_TYPE'] == 'L'].sum()
+
 
     
     df = pd.concat(appended_data, axis=0, ignore_index=True)
@@ -189,6 +199,8 @@ def concat_by_type_ip(folderdir, csv_list, col_list, columns_to_rename):
     # print ('prem13    '), prem_count13
     # print ('prem25    '), prem_count25
     # print ('sum of SI:'), si
+
+    # print prem_count1_S, prem_count1_L
 
     return df
 
@@ -209,6 +221,8 @@ print ('|sum ANNUAL_PREM_1 |'), df_death.ANNUAL_PREM_1.sum()
 print ('|sum ANNUAL_PREM_13|'),df_death.ANNUAL_PREM_13.sum()
 print ('|sum ANNUAL_PREM_25|'),df_death.ANNUAL_PREM_25.sum()
 print ('|sum SUM ASSURED   |'),df_death.SUM_ASSURED.sum()
+print ('|sum ANNUAL_PREM_1_Step|'),     df_death.ANNUAL_PREM_1[df_death['PREMIUM_TYPE'] == "S"].sum()
+print ('|sum ANNUAL_PREM_1_Level|'),    df_death.ANNUAL_PREM_1[df_death['PREMIUM_TYPE'] == "L"].sum()
 
 tpd_res_csv_list = ['COCPL1.csv', 'COCPS1.csv']
 df_tpd = concat_by_type(run_name, tpd_res_csv_list, col_list_res_ls, columns_to_rename_ls)
@@ -218,6 +232,8 @@ print ('|sum ANNUAL_PREM_1 |'), df_tpd.ANNUAL_PREM_1.sum()
 print ('|sum ANNUAL_PREM_13|'),df_tpd.ANNUAL_PREM_13.sum()
 print ('|sum ANNUAL_PREM_25|'),df_tpd.ANNUAL_PREM_25.sum()
 print ('|sum SUM ASSURED   |'),df_tpd.SUM_ASSURED.sum()
+print ('|sum ANNUAL_PREM_1_Step|'),     df_tpd.ANNUAL_PREM_1[df_tpd['PREMIUM_TYPE'] == "S"].sum()
+print ('|sum ANNUAL_PREM_1_Level|'),    df_tpd.ANNUAL_PREM_1[df_tpd['PREMIUM_TYPE'] == "L"].sum()
 
 if policy_subset == 'ordinary-cover':
     tra_res_csv_list = ['COCTL1.csv', 'COCTS1.csv']
@@ -227,11 +243,13 @@ if policy_subset == 'ordinary-cover':
     print ('|sum ANNUAL_PREM_1 |'), df_tra.ANNUAL_PREM_1.sum()
     print ('|sum ANNUAL_PREM_13|'),df_tra.ANNUAL_PREM_13.sum()
     print ('|sum SUM ASSURED   |'),df_tra.SUM_ASSURED.sum()
+    print ('|sum ANNUAL_PREM_1_Step|'),     df_tra.ANNUAL_PREM_1[df_tra['PREMIUM_TYPE'] == "S"].sum()
+    print ('|sum ANNUAL_PREM_1_Level|'),    df_tra.ANNUAL_PREM_1[df_tra['PREMIUM_TYPE'] == "L"].sum()
 
 
 
 
-col_list_res_ip = ['AGE_AT_ENTRY', 'POL_NUMBER','SUM_INS', 'B_BEN_NO',
+col_list_res_ip = ['AGE_AT_ENTRY', 'POL_NUMBER','SUM_INS', 'B_BEN_NO', 'PREMIUM_TYPE',
                 'MOS_PV_PREM','ANNUAL_PREM_12', 'BE_RESERVE', 'L_LIFE_ID', 'ANNUAL_PREM_1',  
                 'POLICY_FEE','ENTRY_MONTH', 'ENTRY_YEAR', 'ANNUAL_PREM_24']
 
@@ -248,6 +266,9 @@ print ('________________________IP:')
 print ('|sum ANNUAL_PREM_1 |'), df_ip.ANNUAL_PREM_1.sum()
 print ('|sum ANNUAL_PREM_13|'),df_ip.ANNUAL_PREM_13.sum()
 print ('|sum ANNUAL_PREM_25|'),df_ip.ANNUAL_PREM_25.sum()
+print ('|sum ANNUAL_PREM_1_Step|'),     df_ip.ANNUAL_PREM_1[df_ip['PREMIUM_TYPE'] == "S"].sum()
+print ('|sum ANNUAL_PREM_1_Level|'),    df_ip.ANNUAL_PREM_1[df_ip['PREMIUM_TYPE'] == "L"].sum()
+
 
 
 
@@ -266,6 +287,14 @@ if policy_subset == 'ordinary-cover':
                                             df_tpd.ANNUAL_PREM_25.sum() +\
                                             df_tra.ANNUAL_PREM_25.sum() +\
                                             df_ip.ANNUAL_PREM_25.sum()
+    print ('|TOTAL sum ANNUAL_PREM_1_Step |'), df_death.ANNUAL_PREM_1[df_death['PREMIUM_TYPE'] == "S"].sum() +\
+                                            df_tpd.ANNUAL_PREM_1[df_tpd['PREMIUM_TYPE'] == "S"].sum() +\
+                                            df_tra.ANNUAL_PREM_1[df_tra['PREMIUM_TYPE'] == "S"].sum() +\
+                                            df_ip.ANNUAL_PREM_1[df_ip['PREMIUM_TYPE'] == "S"].sum()
+    print ('|TOTAL sum ANNUAL_PREM_1_Level |'), df_death.ANNUAL_PREM_1[df_death['PREMIUM_TYPE'] == "L"].sum() +\
+                                            df_tpd.ANNUAL_PREM_1[df_tpd['PREMIUM_TYPE'] == "L"].sum() +\
+                                            df_tra.ANNUAL_PREM_1[df_tra['PREMIUM_TYPE'] == "L"].sum() +\
+                                            df_ip.ANNUAL_PREM_1[df_ip['PREMIUM_TYPE'] == "L"].sum()
 
 
 
